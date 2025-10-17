@@ -1,0 +1,42 @@
+version: '3.8'
+services:
+  db:
+    image: postgis/postgis:15-3.4
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: mingenow
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    ports:
+      - '5432:5432'
+
+  redis:
+    image: redis:7
+    ports:
+      - '6379:6379'
+
+  backend:
+    build: ./backend
+    environment:
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASS=postgres
+      - DB_NAME=mingenow
+      - JWT_SECRET=changeme
+      - REFRESH_SECRET=changeme2
+      - STRIPE_SECRET=sk_test_xxx
+      - STRIPE_WEBHOOK_SECRET=whsec_xxx
+      - S3_BUCKET=your-bucket
+      - S3_REGION=us-east-1
+      - S3_KEY=AKIA...
+      - S3_SECRET=...
+    depends_on:
+      - db
+      - redis
+    ports:
+      - '4000:4000'
+
+volumes:
+  db-data:
